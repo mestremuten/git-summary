@@ -30,6 +30,7 @@ usage() {
                 - uncommitted new files                    "+_"
                 - uncommitted changes                      "M_"
                 - stashed changes                          "S_"
+                - unmerged branches                        "B_"
                 - (nothing)                                " _"
               * Remote Changes:
                 - unpulled commits for the current branch  "_v"
@@ -177,6 +178,7 @@ summarize_one_git_repo () {
     local new_files=`LC_ALL=C git -C $f status | grep "new file" -c`
     local modified=`LC_ALL=C git -C $f status | grep modified -c`
     local stashed=`LC_ALL=C git -C $f stash list | wc -l`
+    local unmerged=`LC_ALL=C git -C $f branch --no-merged master | wc -l`
 
     if [ $untracked -ne 0 ]; then
       state="${state}?"
@@ -201,6 +203,13 @@ summarize_one_git_repo () {
 
     if [ $stashed -ne 0 ]; then
       state="${state}S"
+      numState=2
+    else
+      state="${state} "
+    fi
+
+    if [ $unmerged -ne 0 ]; then
+      state="${state}B"
       numState=2
     else
       state="${state} "
